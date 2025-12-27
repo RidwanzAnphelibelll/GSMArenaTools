@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="description" content="Automatically detect and display your device specifications from GSMArena database">
+    <meta name="keywords" content="device specs, phone specifications, gsmarena, auto detect device">
+    <link rel="icon" href="https://fdn.gsmarena.com/imgroot/static/favicon.ico">
+    <title>My Device Info - GSMArena Auto Detector</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>My Device Specifications</h1>
+            <p>Automatically detect and display your device information</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="auto-detect-container">
+                <div class="detect-info">
+                    <i class="fas fa-mobile-screen-button"></i>
+                    <h2>Detecting Your Device...</h2>
+                    <p id="detected-model">Please wait while we analyze your device</p>
+                </div>
+                
+                <div class="loader" id="main-loader">
+                    <div class="loader-spinner"></div>
+                    <p>Loading device information...</p>
+                </div>
+                
+                <div class="device-selection" id="device-selection">
+                    <h3>We found multiple devices matching your model</h3>
+                    <p style="text-align: center; color: var(--text-light); margin-bottom: 30px;">Please select your device:</p>
+                    <div id="device-options" class="device-options"></div>
+                </div>
+
+                <div class="device-info-container" id="device-info-container">
+                    <div class="device-header-main">
+                        <div class="device-title">
+                            <h1 id="device-name"></h1>
+                            <p id="device-subtitle"></p>
+                        </div>
+                    </div>
+
+                    <div class="device-main-grid">
+                        <div class="device-image-section">
+                            <img id="device-image" src="" alt="Device Image">
+                            <div id="device-popularity" style="margin-top: 20px; padding: 15px; background: white; border-radius: 10px; box-shadow: var(--shadow-sm);"></div>
+                        </div>
+
+                        <div class="device-quick-specs-section">
+                            <h2>Quick Specifications</h2>
+                            <div id="quick-specs-content"></div>
+                        </div>
+                    </div>
+
+                    <div class="device-full-specs">
+                        <h2>Full Specifications</h2>
+                        <div id="full-specs-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; <span id="year"></span> GSMArena Auto Detector. All data from GSMArena.com</p>
+            <p style="margin-top: 10px; font-size: 0.85rem; opacity: 0.7;">Device specifications are automatically fetched and displayed</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
