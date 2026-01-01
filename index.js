@@ -3,7 +3,7 @@
 const path = require('path');
 const chalk = require('chalk');
 const express = require('express');
-const { getDeviceInfo, detectDevice } = require('./lib/tools');
+const { getPhoneSpecs, searchPhones } = require('./lib/gsmarena');
 
 const app = express();
 const port = 3000;
@@ -15,18 +15,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.post('/api/detect', async (req, res) => {
-    const { userAgent } = req.body;
-    
-    if (!userAgent) {
-        return res.status(400).json({
-            success: false,
-            message: 'User Agent is required!'
-        });
-    }
+app.get('/search/:query', async (req, res) => {
+    const query = req.params.query;
     
     try {
-        const result = await detectDevice(userAgent);
+        const result = await searchPhones(query);
         res.json(result);
     } catch (error) {
         res.status(500).json({
@@ -36,19 +29,36 @@ app.post('/api/detect', async (req, res) => {
     }
 });
 
-app.post('/api/device', async (req, res) => {
-    const { url, userAgent } = req.body;
-    
-    if (!url) {
-        return res.status(400).json({
-            success: false,
-            message: 'URL is required!'
-        });
-    }
+app.get('/specs/:url', async (req, res) => {
+    const url = req.params.url;
     
     try {
-        const result = await getDeviceInfo(url, userAgent);
-        res.json(result);
+        const result = await getPhoneSpecs(url, true);
+        
+        if (result.success) {
+            res.json(result);
+        } else {
+            res.status(404).json(result);
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: `${error.message}`
+        });
+    }
+});
+
+app.get('/phone/:model', async (req, res) => {
+    const model = req.params.model;
+    
+    try {
+        const result = await getPhoneSpecs(model);
+        
+        if (result.success) {
+            res.json(result);
+        } else {
+            res.status(404).json(result);
+        }
     } catch (error) {
         res.status(500).json({
             success: false,
