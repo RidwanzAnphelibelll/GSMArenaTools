@@ -1,301 +1,283 @@
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('year').textContent = new Date().getFullYear();
+function handleSearch() {
+    const searchInput = document.getElementById('phone-search');
+    const query = searchInput.value.trim();
     
-    const userAgent = navigator.userAgent;
-    console.log('User Agent:', userAgent);
-    
-    detectMyDevice(userAgent);
-});
+    if (query) {
+        searchPhones(query);
+    } else {
+        showError('Please enter a phone model!');
+    }
+}
 
-async function detectMyDevice(userAgent) {
-    const loader = document.getElementById('main-loader');
-    const modelDisplay = document.getElementById('detected-model');
-    const detectInfo = document.querySelector('.detect-info');
+function clearAll() {
+    const searchInput = document.getElementById('phone-search');
+    const clearBtn = document.getElementById('clear-search');
+    const errorMessage = document.getElementById('error-message');
+    const searchResults = document.getElementById('search-results');
+    const specsContainer = document.getElementById('specs-container');
     
-    loader.style.display = 'block';
-    modelDisplay.textContent = 'Analyzing your device...';
+    searchInput.value = '';
+    clearBtn.style.display = 'none';
+    errorMessage.classList.remove('active');
+    searchResults.classList.remove('active');
+    specsContainer.style.display = 'none';
+    searchInput.focus();
+}
+
+function searchPhones(query) {
+    const loader = document.getElementById('loader');
+    const loaderText = loader.querySelector('p');
+    const errorMessage = document.getElementById('error-message');
+    const searchResults = document.getElementById('search-results');
+    const specsContainer = document.getElementById('specs-container');
     
-    try {
-        const response = await fetch('/api/detect', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ userAgent: userAgent })
-        });
+    loaderText.textContent = 'Searching for "' + query + '"...';
+    loader.classList.add('active');
+    errorMessage.classList.remove('active');
+    searchResults.classList.remove('active');
+    specsContainer.style.display = 'none';
+    
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/search/' + encodeURIComponent(query), true);
+    
+    xhr.onload = function() {
+        loader.classList.remove('active');
         
-        const data = await response.json();
-        
-        if (data.success && data.devices && data.devices.length > 0) {
-            modelDisplay.textContent = `Detected: ${data.detectedModel}`;
-            detectInfo.querySelector('i').className = 'fas fa-check-circle';
-            detectInfo.querySelector('i').style.color = 'var(--success-color)';
-            
-            if (data.devices.length === 1) {
-                setTimeout(() => {
-                    loadDeviceInfo(data.devices[0].url, userAgent);
-                }, 500);
-            } else {
-                loader.style.display = 'none';
-                showDeviceOptions(data.devices, userAgent);
+        if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+                const data = JSON.parse(xhr.responseText);
+                
+                if (data.success && data.results && data.results.length > 0) {
+                    displaySearchResults(data.results, query);
+                } else {
+                    showError('No phones found matching "' + query + '"');
+                }
+            } catch (e) {
+                showError('Failed to parse response data!');
             }
         } else {
-            showError(data.message || 'Could not detect your device automatically');
+            showError('Failed to search. Please try again.');
         }
-    } catch (error) {
-        showError('Error detecting device: ' + error.message);
-    }
-}
-
-function showDeviceOptions(devices, userAgent) {
-    const selection = document.getElementById('device-selection');
-    const options = document.getElementById('device-options');
-    
-    options.innerHTML = '';
-    
-    devices.forEach(device => {
-        const card = document.createElement('div');
-        card.className = 'device-option-card';
-        card.innerHTML = `
-            <img src="${device.image}" alt="${device.name}" onerror="this.src='https://fdn2.gsmarena.com/vv/bigpic/default.jpg'">
-            <h4>${device.name}</h4>
-        `;
-        card.onclick = () => {
-            selection.style.display = 'none';
-            const loader = document.getElementById('main-loader');
-            loader.style.display = 'block';
-            loadDeviceInfo(device.url, userAgent);
-        };
-        options.appendChild(card);
-    });
-    
-    selection.style.display = 'block';
-}
-
-async function loadDeviceInfo(url, userAgent) {
-    const loader = document.getElementById('main-loader');
-    const container = document.getElementById('device-info-container');
-    const detectInfo = document.querySelector('.detect-info');
-    
-    loader.style.display = 'block';
-    
-    try {
-        const response = await fetch('/api/device', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                url: url,
-                userAgent: userAgent 
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            detectInfo.style.display = 'none';
-            displayDeviceInfo(data.device);
-            container.style.display = 'block';
-            
-            setTimeout(() => {
-                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 300);
-        } else {
-            showError(data.message);
-        }
-    } catch (error) {
-        showError('Error loading device info: ' + error.message);
-    } finally {
-        loader.style.display = 'none';
-    }
-}
-
-function displayDeviceInfo(device) {
-    document.getElementById('device-name').textContent = device.name || 'Unknown Device';
-    document.getElementById('device-subtitle').textContent = device.subtitle || '';
-    
-    const deviceImage = document.getElementById('device-image');
-    deviceImage.src = device.image || 'https://fdn2.gsmarena.com/vv/bigpic/default.jpg';
-    deviceImage.alt = device.name;
-    deviceImage.onerror = function() {
-        this.src = 'https://fdn2.gsmarena.com/vv/bigpic/default.jpg';
     };
     
-    if (device.popularity) {
-        const popularityDiv = document.getElementById('device-popularity');
-        popularityDiv.innerHTML = `
-            <div style="text-align: center;">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color); margin-bottom: 5px;">
-                    ${device.popularity.percentage || 'N/A'}
-                </div>
-                <div style="font-size: 0.9rem; color: var(--text-light);">
-                    ${device.popularity.hits || 'Popularity'}
-                </div>
-            </div>
-        `;
-    }
+    xhr.onerror = function() {
+        loader.classList.remove('active');
+        showError('Network error occurred. Please check your connection.');
+    };
     
-    displayQuickSpecs(device.quickSpecs);
-    displayFullSpecs(device.specs);
+    xhr.send();
+}
+
+function displaySearchResults(results, query) {
+    const searchResults = document.getElementById('search-results');
+    searchResults.innerHTML = '';
+    
+    const header = document.createElement('div');
+    header.className = 'results-header';
+    header.innerHTML = 'Found <strong>' + results.length + '</strong> result(s) for "<strong>' + query + '</strong>". Click to view details:';
+    searchResults.appendChild(header);
+    
+    const resultsList = document.createElement('div');
+    resultsList.className = 'results-list';
+    
+    results.forEach(function(phone) {
+        const item = document.createElement('div');
+        item.className = 'result-item';
+        item.setAttribute('data-url', phone.url);
+        item.setAttribute('data-name', phone.name);
+        
+        if (phone.image) {
+            const img = document.createElement('img');
+            img.className = 'result-item-image';
+            img.src = phone.image;
+            img.alt = phone.name;
+            item.appendChild(img);
+        }
+        
+        const name = document.createElement('div');
+        name.className = 'result-item-name';
+        name.textContent = phone.name;
+        item.appendChild(name);
+        
+        item.addEventListener('click', function() {
+            loadPhoneSpecs(phone.url, phone.name, true);
+        });
+        
+        resultsList.appendChild(item);
+    });
+    
+    searchResults.appendChild(resultsList);
+    searchResults.classList.add('active');
+}
+
+function loadPhoneSpecs(model, phoneName, isDirectUrl) {
+    const loader = document.getElementById('loader');
+    const loaderText = loader.querySelector('p');
+    const errorMessage = document.getElementById('error-message');
+    const specsContainer = document.getElementById('specs-container');
+    const searchResults = document.getElementById('search-results');
+    
+    loaderText.textContent = 'Loading ' + phoneName + ' specifications...';
+    loader.classList.add('active');
+    errorMessage.classList.remove('active');
+    specsContainer.style.display = 'none';
+    searchResults.classList.remove('active');
+    
+    const endpoint = isDirectUrl ? '/specs/' : '/phone/';
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', endpoint + encodeURIComponent(model), true);
+    
+    xhr.onload = function() {
+        loader.classList.remove('active');
+        
+        if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+                const data = JSON.parse(xhr.responseText);
+                
+                if (data.success) {
+                    displayPhoneSpecs(data.data);
+                    specsContainer.style.display = 'block';
+                    window.scrollTo({ top: specsContainer.offsetTop - 20, behavior: 'smooth' });
+                } else {
+                    showError(data.message);
+                }
+            } catch (e) {
+                showError('Failed to parse response data!');
+            }
+        } else {
+            showError('Failed to load phone specifications. Please try again.');
+        }
+    };
+    
+    xhr.onerror = function() {
+        loader.classList.remove('active');
+        showError('Network error occurred. Please check your connection.');
+    };
+    
+    xhr.send();
+}
+
+function displayPhoneSpecs(data) {
+    document.getElementById('phone-name').textContent = data.name;
+    document.getElementById('phone-image').src = data.image;
+    document.getElementById('phone-image').alt = data.name;
+    
+    displayQuickSpecs(data.quickSpecs);
+    displayDetailedSpecs(data.detailedSpecs);
 }
 
 function displayQuickSpecs(quickSpecs) {
-    const quickSpecsContent = document.getElementById('quick-specs-content');
-    quickSpecsContent.innerHTML = '';
+    const quickSpecsContainer = document.getElementById('quick-specs');
+    quickSpecsContainer.innerHTML = '';
     
-    if (!quickSpecs || Object.keys(quickSpecs).length === 0) {
-        quickSpecsContent.innerHTML = '<p style="color: var(--text-light);">No quick specs available</p>';
-        return;
-    }
+    const specIcons = {
+        display: 'fa-mobile-alt',
+        camera: 'fa-camera',
+        video: 'fa-video',
+        ram: 'fa-memory',
+        chipset: 'fa-microchip',
+        battery: 'fa-battery-full',
+        charging: 'fa-bolt',
+        released: 'fa-calendar',
+        body: 'fa-mobile',
+        os: 'fa-android',
+        storage: 'fa-hdd'
+    };
     
-    for (const [key, value] of Object.entries(quickSpecs)) {
-        const specItem = document.createElement('div');
-        specItem.className = 'spec-item fade-in';
-        
-        if (typeof value === 'object' && value !== null && value.value) {
-            specItem.innerHTML = `
-                <div class="spec-value">${escapeHtml(value.value)}</div>
-                <div class="spec-detail">${escapeHtml(value.detail || '')}</div>
-            `;
-        } else if (typeof value === 'string') {
-            const cleanValue = value.replace(/<i class="[^"]*"><\/i>/g, '').trim();
-            
-            if (cleanValue) {
-                specItem.innerHTML = `<div class="spec-text">${escapeHtml(cleanValue)}</div>`;
-            } else {
-                specItem.style.display = 'none';
+    const specLabels = {
+        display: 'Display',
+        camera: 'Camera',
+        video: 'Video',
+        ram: 'RAM',
+        chipset: 'Chipset',
+        battery: 'Battery',
+        charging: 'Charging',
+        released: 'Released',
+        body: 'Body',
+        os: 'OS',
+        storage: 'Storage'
+    };
+    
+    for (const key in quickSpecs) {
+        if (quickSpecs.hasOwnProperty(key)) {
+            const value = quickSpecs[key];
+            if (value && value.trim()) {
+                const li = document.createElement('li');
+                li.className = 'quick-spec-item';
+                li.innerHTML = '<div class="quick-spec-icon"><i class="fas ' + (specIcons[key] || 'fa-info-circle') + '"></i></div>' +
+                               '<div class="quick-spec-content">' +
+                               '<span class="quick-spec-value">' + value + '</span>' +
+                               '<span class="quick-spec-label">' + (specLabels[key] || key) + '</span>' +
+                               '</div>';
+                quickSpecsContainer.appendChild(li);
             }
         }
-        
-        quickSpecsContent.appendChild(specItem);
     }
 }
 
-function displayFullSpecs(specs) {
-    const fullSpecsContent = document.getElementById('full-specs-content');
-    fullSpecsContent.innerHTML = '';
+function displayDetailedSpecs(detailedSpecs) {
+    const detailedSpecsContainer = document.getElementById('detailed-specs');
+    detailedSpecsContainer.innerHTML = '';
     
-    if (!specs || Object.keys(specs).length === 0) {
-        fullSpecsContent.innerHTML = '<p style="color: var(--text-light); text-align: center; padding: 40px;">No detailed specifications available</p>';
-        return;
-    }
-    
-    for (const [category, categorySpecs] of Object.entries(specs)) {
-        if (!categorySpecs || Object.keys(categorySpecs).length === 0) continue;
-        
-        const categorySection = document.createElement('div');
-        categorySection.className = 'spec-category fade-in';
-        
-        const categoryTitle = document.createElement('h3');
-        categoryTitle.textContent = category;
-        categorySection.appendChild(categoryTitle);
-        
-        const specTable = document.createElement('table');
-        specTable.className = 'spec-table';
-        
-        const tbody = document.createElement('tbody');
-        
-        for (const [label, value] of Object.entries(categorySpecs)) {
-            if (!value || value.trim() === '') continue;
+    for (const category in detailedSpecs) {
+        if (detailedSpecs.hasOwnProperty(category)) {
+            const specs = detailedSpecs[category];
             
-            const row = document.createElement('tr');
+            const table = document.createElement('table');
+            table.className = 'spec-table';
             
-            const labelCell = document.createElement('td');
-            labelCell.className = 'spec-label';
-            labelCell.textContent = label;
+            const thead = document.createElement('thead');
+            thead.innerHTML = '<tr><th colspan="2" class="spec-table-header">' + category + '</th></tr>';
+            table.appendChild(thead);
             
-            const valueCell = document.createElement('td');
-            valueCell.className = 'spec-value-cell';
-            valueCell.innerHTML = formatSpecValue(value);
+            const tbody = document.createElement('tbody');
             
-            row.appendChild(labelCell);
-            row.appendChild(valueCell);
-            tbody.appendChild(row);
+            for (const label in specs) {
+                if (specs.hasOwnProperty(label)) {
+                    const value = specs[label];
+                    const tr = document.createElement('tr');
+                    tr.className = 'spec-row';
+                    tr.innerHTML = '<td class="spec-label">' + label + '</td>' +
+                                  '<td class="spec-value">' + value + '</td>';
+                    tbody.appendChild(tr);
+                }
+            }
+            
+            table.appendChild(tbody);
+            detailedSpecsContainer.appendChild(table);
         }
-        
-        specTable.appendChild(tbody);
-        categorySection.appendChild(specTable);
-        fullSpecsContent.appendChild(categorySection);
     }
-}
-
-function formatSpecValue(value) {
-    if (!value) return '';
-    
-    let formatted = escapeHtml(value.toString());
-    
-    formatted = formatted.replace(/\n/g, '<br>');
-    
-    formatted = formatted.replace(/(\d+\.?\d*)\s*(MP|GB|RAM|mAh|MHz|GHz|mm|inches?|cm|Hz|W|nits?)/gi, 
-        '<strong>$1 $2</strong>');
-    
-    formatted = formatted.replace(/(\d{3,4})\s*x\s*(\d{3,4})/g, '<strong>$1 x $2</strong>');
-    
-    return formatted;
-}
-
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.toString().replace(/[&<>"']/g, m => map[m]);
 }
 
 function showError(message) {
-    const loader = document.getElementById('main-loader');
-    const container = document.getElementById('device-info-container');
-    const selection = document.getElementById('device-selection');
-    const detectInfo = document.querySelector('.detect-info');
+    const errorMessage = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
     
-    loader.style.display = 'none';
-    selection.style.display = 'none';
-    
-    detectInfo.querySelector('i').className = 'fas fa-exclamation-triangle';
-    detectInfo.querySelector('i').style.color = 'var(--error-color)';
-    detectInfo.querySelector('h2').textContent = 'Detection Failed';
-    
-    container.innerHTML = `
-        <div class="error-message fade-in">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>Unable to Detect Device</h3>
-            <p>${escapeHtml(message)}</p>
-            <p style="font-size: 0.95rem; color: var(--text-secondary); margin-top: 20px;">
-                This might happen if:
-            </p>
-            <ul style="text-align: left; max-width: 400px; margin: 15px auto; color: var(--text-light);">
-                <li>Your device is too new or not in the GSMArena database</li>
-                <li>You're using a desktop browser</li>
-                <li>Your browser's user agent is modified</li>
-            </ul>
-            <button onclick="location.reload()" class="retry-btn">
-                <i class="fas fa-redo"></i> Try Again
-            </button>
-        </div>
-    `;
-    container.style.display = 'block';
-    
-    setTimeout(() => {
-        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 300);
+    errorText.textContent = message;
+    errorMessage.classList.add('active');
 }
 
-window.addEventListener('error', function(event) {
-    console.error('JavaScript Error:', event.error);
-});
-
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        console.log('Service Worker support detected');
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('year').textContent = new Date().getFullYear();
+    
+    const searchBtn = document.getElementById('search-btn');
+    const searchInput = document.getElementById('phone-search');
+    const clearBtn = document.getElementById('clear-search');
+    
+    searchBtn.addEventListener('click', handleSearch);
+    clearBtn.addEventListener('click', clearAll);
+    
+    searchInput.addEventListener('input', function() {
+        if (searchInput.value.trim()) {
+            clearBtn.style.display = 'flex';
+        } else {
+            clearBtn.style.display = 'none';
+        }
     });
-}
-
-document.addEventListener('click', function(e) {
-    if (e.target.tagName === 'A' && e.target.getAttribute('href') === '#') {
-        e.preventDefault();
-    }
+    
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    });
 });
