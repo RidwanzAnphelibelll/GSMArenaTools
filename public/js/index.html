@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="img/phone.png" type="image/png">
+    <title>GSMArenaTools - Phone Specifications</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>GSMArenaTools</h1>
+            <p>Phone Specifications Database</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="search-section" id="search-section">
+            <div class="search-box">
+                <div class="search-input-wrapper">
+                    <input type="text" id="phone-search" placeholder="Enter phone model (e.g., oppo)" />
+                    <button type="button" id="clear-search" class="clear-btn" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <button id="search-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+            <div class="search-results" id="search-results"></div>
+        </div>
+
+        <div class="loader" id="loader">
+            <div class="loader-spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <div class="error-message" id="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Could Not Find Device</h3>
+            <p id="error-text">Unable to find the specified device model</p>
+        </div>
+
+        <div class="specs-container" id="specs-container" style="display: none;">
+            <div class="phone-header">
+                <h1 class="phone-title" id="phone-name"></h1>
+                <p class="phone-subtitle">Full phone specifications</p>
+            </div>
+
+            <div class="phone-main">
+                <div class="phone-image-section">
+                    <img class="phone-image" id="phone-image" src="" alt="Phone">
+                </div>
+
+                <div class="phone-quick-specs">
+                    <ul class="quick-specs-list" id="quick-specs"></ul>
+                </div>
+            </div>
+
+            <div class="detailed-specs" id="detailed-specs"></div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="copyright">
+            <p>&copy; <span id="year"></span> GSMArenaTools - All rights reserved</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
