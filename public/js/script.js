@@ -263,9 +263,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchBtn = document.getElementById('search-btn');
     const searchInput = document.getElementById('phone-search');
     const clearBtn = document.getElementById('clear-search');
+    const hamburgerMenu = document.getElementById('hamburger-menu');
+    const navMenu = document.getElementById('nav-menu');
     
     searchBtn.addEventListener('click', handleSearch);
     clearBtn.addEventListener('click', clearAll);
+    
+    hamburgerMenu.addEventListener('click', function() {
+        navMenu.classList.toggle('show');
+    });
+    
+    document.addEventListener('click', function(event) {
+        if (!hamburgerMenu.contains(event.target) && !navMenu.contains(event.target)) {
+            navMenu.classList.remove('show');
+        }
+    });
     
     searchInput.addEventListener('input', function() {
         if (searchInput.value.trim()) {
