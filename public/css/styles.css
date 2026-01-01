@@ -30,6 +30,7 @@ body {
     border-bottom: 3px solid var(--primary-color);
     padding: 15px 0;
     margin-bottom: 20px;
+    position: relative;
 }
 
 .header-content {
@@ -49,6 +50,71 @@ body {
     font-size: 12px;
     color: var(--text-light);
     margin: 5px 0 0 0;
+}
+
+.header-nav {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    z-index: 100;
+}
+
+.hamburger-menu {
+    background: var(--primary-color);
+    border: none;
+    color: white;
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 10px 12px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.hamburger-menu:hover {
+    background: var(--primary-dark);
+}
+
+.nav-menu {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: white;
+    border-radius: 5px;
+    box-shadow: var(--shadow-md);
+    padding: 5px 0;
+    min-width: 180px;
+    display: none;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.nav-menu.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.nav-menu a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.nav-menu a:hover {
+    background-color: #f5f5f5;
+    color: var(--primary-color);
+}
+
+.nav-menu a i {
+    margin-right: 10px;
+    width: 18px;
+    text-align: center;
 }
 
 .container {
@@ -409,6 +475,21 @@ footer {
 @media (max-width: 768px) {
     .header h1 {
         font-size: 20px;
+    }
+
+    .header-nav {
+        top: 12px;
+        right: 10px;
+    }
+
+    .hamburger-menu {
+        padding: 8px 10px;
+        font-size: 1.2rem;
+    }
+
+    .nav-menu {
+        min-width: 160px;
+        right: 0;
     }
 
     .search-box {
