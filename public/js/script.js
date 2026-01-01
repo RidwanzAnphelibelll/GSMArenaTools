@@ -171,17 +171,17 @@ function displayQuickSpecs(quickSpecs) {
     quickSpecsContainer.innerHTML = '';
     
     const specIcons = {
-        display: 'fa-mobile-alt',
-        camera: 'fa-camera',
-        video: 'fa-video',
-        ram: 'fa-memory',
-        chipset: 'fa-microchip',
-        battery: 'fa-battery-full',
-        charging: 'fa-bolt',
-        released: 'fa-calendar',
-        body: 'fa-mobile',
-        os: 'fa-android',
-        storage: 'fa-hdd'
+        display: 'fa-solid fa-mobile-screen',
+        camera: 'fa-solid fa-camera',
+        video: 'fa-solid fa-video',
+        ram: 'fa-solid fa-memory',
+        chipset: 'fa-solid fa-microchip',
+        battery: 'fa-solid fa-battery-full',
+        charging: 'fa-solid fa-bolt',
+        released: 'fa-solid fa-calendar-days',
+        body: 'fa-solid fa-mobile',
+        os: 'fa-brands fa-android',
+        storage: 'fa-solid fa-sd-card'
     };
     
     const specLabels = {
@@ -204,7 +204,7 @@ function displayQuickSpecs(quickSpecs) {
             if (value && value.trim()) {
                 const li = document.createElement('li');
                 li.className = 'quick-spec-item';
-                li.innerHTML = '<div class="quick-spec-icon"><i class="fas ' + (specIcons[key] || 'fa-info-circle') + '"></i></div>' +
+                li.innerHTML = '<div class="quick-spec-icon"><i class="' + (specIcons[key] || 'fa-solid fa-circle-info') + '"></i></div>' +
                                '<div class="quick-spec-content">' +
                                '<span class="quick-spec-value">' + value + '</span>' +
                                '<span class="quick-spec-label">' + (specLabels[key] || key) + '</span>' +
