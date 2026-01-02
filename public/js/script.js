@@ -227,7 +227,16 @@ function displayDetailedSpecs(detailedSpecs) {
             table.className = 'spec-table';
             
             const thead = document.createElement('thead');
-            thead.innerHTML = '<tr><th colspan="2" class="spec-table-header">' + category + '</th></tr>';
+            const headerRow = document.createElement('tr');
+            const th = document.createElement('th');
+            th.className = 'spec-table-header';
+            if (category === 'Network') {
+                th.classList.add('collapsed');
+            }
+            th.setAttribute('colspan', '2');
+            th.textContent = category;
+            headerRow.appendChild(th);
+            thead.appendChild(headerRow);
             table.appendChild(thead);
             
             const tbody = document.createElement('tbody');
@@ -237,6 +246,11 @@ function displayDetailedSpecs(detailedSpecs) {
                     const value = specs[label];
                     const tr = document.createElement('tr');
                     tr.className = 'spec-row';
+                    
+                    if (category === 'Network' && label.toLowerCase() !== 'technology') {
+                        tr.classList.add('hidden-row');
+                    }
+                    
                     tr.innerHTML = '<td class="spec-label">' + label + '</td>' +
                                   '<td class="spec-value">' + value + '</td>';
                     tbody.appendChild(tr);
@@ -245,6 +259,23 @@ function displayDetailedSpecs(detailedSpecs) {
             
             table.appendChild(tbody);
             detailedSpecsContainer.appendChild(table);
+            
+            if (category === 'Network') {
+                th.addEventListener('click', function() {
+                    const isCurrentlyCollapsed = !th.classList.contains('expanded');
+                    
+                    th.classList.toggle('expanded');
+                    
+                    const hiddenRows = tbody.querySelectorAll('.hidden-row');
+                    hiddenRows.forEach(function(row) {
+                        row.classList.toggle('show-row');
+                    });
+                    
+                    if (isCurrentlyCollapsed) {
+                        window.scrollTo({ top: table.offsetTop - 20, behavior: 'smooth' });
+                    }
+                });
+            }
         }
     }
 }
