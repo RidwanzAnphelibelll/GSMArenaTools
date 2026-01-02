@@ -145,6 +145,57 @@ body {
     padding: 0 20px;
 }
 
+.tab-buttons {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    background: white;
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 14px 24px;
+    border: none;
+    background: transparent;
+    color: var(--text-light);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.tab-btn:hover {
+    background: #f8f8f8;
+    color: var(--text-color);
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.tab-btn i {
+    font-size: 18px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.4s ease;
+}
+
 .search-section {
     background: var(--card-bg);
     padding: 40px;
@@ -172,7 +223,8 @@ body {
     align-items: center;
 }
 
-#phone-search {
+#phone-search-input,
+#imei-input {
     width: 100%;
     padding: 14px 45px 14px 18px;
     border: 2px solid var(--border-color);
@@ -183,7 +235,8 @@ body {
     background: #fafafa;
 }
 
-#phone-search:focus {
+#phone-search-input:focus,
+#imei-input:focus {
     border-color: var(--primary-color);
     background: white;
     box-shadow: 0 0 0 4px rgba(241, 110, 0, 0.1);
@@ -213,7 +266,8 @@ body {
     font-size: 16px;
 }
 
-#search-btn {
+#search-btn,
+#imei-btn {
     padding: 14px 30px;
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     color: #fff;
@@ -230,13 +284,15 @@ body {
     white-space: nowrap;
 }
 
-#search-btn:hover {
+#search-btn:hover,
+#imei-btn:hover {
     background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
 
-#search-btn:active {
+#search-btn:active,
+#imei-btn:active {
     transform: translateY(0);
 }
 
@@ -652,6 +708,19 @@ footer {
         right: 0;
     }
 
+    .tab-buttons {
+        gap: 8px;
+    }
+
+    .tab-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    .tab-btn i {
+        font-size: 16px;
+    }
+
     .search-section {
         padding: 30px 20px;
     }
@@ -661,7 +730,8 @@ footer {
         gap: 10px;
     }
 
-    #search-btn {
+    #search-btn,
+    #imei-btn {
         justify-content: center;
         width: 100%;
     }
@@ -731,17 +801,28 @@ footer {
         font-size: 12px;
     }
 
+    .tab-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .tab-btn {
+        padding: 12px 16px;
+    }
+
     .search-section {
         padding: 25px 15px;
         border-radius: 12px;
     }
 
-    #phone-search {
+    #phone-search-input,
+    #imei-input {
         padding: 12px 40px 12px 15px;
         font-size: 14px;
     }
 
-    #search-btn {
+    #search-btn,
+    #imei-btn {
         padding: 12px 24px;
         font-size: 14px;
     }
