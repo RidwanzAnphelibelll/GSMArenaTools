@@ -3,7 +3,7 @@
 const path = require('path');
 const chalk = require('chalk');
 const express = require('express');
-const { searchPhones, getPhoneSpecs } = require('./lib/gsmarena');
+const { getPhoneSpecs, searchPhones } = require('./lib/gsmarena');
 
 const app = express();
 const port = 3000;
