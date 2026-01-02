@@ -1,7 +1,9 @@
 const API_BASE_URL = 'https://api-gsmarena-tools.vercel.app/';
 
+let currentTab = 'phone-search';
+
 function handleSearch() {
-    const searchInput = document.getElementById('phone-search');
+    const searchInput = document.getElementById('phone-search-input');
     const query = searchInput.value.trim();
     
     if (query) {
@@ -11,8 +13,23 @@ function handleSearch() {
     }
 }
 
+function handleImeiCheck() {
+    const imeiInput = document.getElementById('imei-input');
+    const imei = imeiInput.value.trim();
+    
+    if (imei) {
+        if (imei.length < 14 || imei.length > 17) {
+            showImeiError('IMEI must be 14-17 characters!');
+            return;
+        }
+        checkImei(imei);
+    } else {
+        showImeiError('Please enter an IMEI number!');
+    }
+}
+
 function clearAll() {
-    const searchInput = document.getElementById('phone-search');
+    const searchInput = document.getElementById('phone-search-input');
     const clearBtn = document.getElementById('clear-search');
     const errorMessage = document.getElementById('error-message');
     const searchResults = document.getElementById('search-results');
@@ -24,6 +41,105 @@ function clearAll() {
     searchResults.classList.remove('active');
     specsContainer.style.display = 'none';
     searchInput.focus();
+}
+
+function clearImei() {
+    const imeiInput = document.getElementById('imei-input');
+    const clearBtn = document.getElementById('clear-imei');
+    const errorMessage = document.getElementById('imei-error-message');
+    const resultContainer = document.getElementById('imei-result-container');
+    
+    imeiInput.value = '';
+    clearBtn.style.display = 'none';
+    errorMessage.classList.remove('active');
+    resultContainer.style.display = 'none';
+    imeiInput.focus();
+}
+
+function checkImei(imei) {
+    const loader = document.getElementById('imei-loader');
+    const errorMessage = document.getElementById('imei-error-message');
+    const resultContainer = document.getElementById('imei-result-container');
+    
+    loader.classList.add('active');
+    errorMessage.classList.remove('active');
+    resultContainer.style.display = 'none';
+    
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', API_BASE_URL + 'api/imei?imei=' + encodeURIComponent(imei), true);
+    
+    xhr.onload = function() {
+        loader.classList.remove('active');
+        
+        if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+                const data = JSON.parse(xhr.responseText);
+                
+                if (data.success && data.data) {
+                    displayImeiResult(data.data);
+                } else {
+                    showImeiError(data.message);
+                }
+            } catch (e) {
+                showImeiError('Failed to parse response data!');
+            }
+        } else {
+            showImeiError('Failed to check IMEI. Please try again.');
+        }
+    };
+    
+    xhr.onerror = function() {
+        loader.classList.remove('active');
+        showImeiError('Network error occurred. Please check your connection.');
+    };
+    
+    xhr.send();
+}
+
+function displayImeiResult(data) {
+    const resultContainer = document.getElementById('imei-result-container');
+    const deviceName = document.getElementById('imei-device-name');
+    const deviceImage = document.getElementById('imei-device-image');
+    const specsContainer = document.getElementById('imei-specs');
+    
+    deviceName.textContent = data.modelName;
+    
+    if (data.image) {
+        deviceImage.src = data.image;
+    }
+    
+    specsContainer.innerHTML = '';
+    
+    const specs = [
+        { label: 'IMEI', value: data.imei, icon: 'fa-solid fa-sim-card' },
+        { label: 'Brand', value: data.brand, icon: 'fa-solid fa-tag' },
+        { label: 'Model', value: data.model, icon: 'fa-solid fa-mobile' },
+        { label: 'Model Name', value: data.modelName, icon: 'fa-solid fa-mobile-screen' }
+    ];
+    
+    specs.forEach(function(spec) {
+        if (spec.value) {
+            const li = document.createElement('li');
+            li.className = 'quick-spec-item';
+            li.innerHTML = '<div class="quick-spec-icon"><i class="' + spec.icon + '"></i></div>' +
+                           '<div class="quick-spec-content">' +
+                           '<span class="quick-spec-value">' + spec.value + '</span>' +
+                           '<span class="quick-spec-label">' + spec.label + '</span>' +
+                           '</div>';
+            specsContainer.appendChild(li);
+        }
+    });
+    
+    resultContainer.style.display = 'block';
+    window.scrollTo({ top: resultContainer.offsetTop - 20, behavior: 'smooth' });
+}
+
+function showImeiError(message) {
+    const errorMessage = document.getElementById('imei-error-message');
+    const errorText = document.getElementById('imei-error-text');
+    
+    errorText.textContent = message;
+    errorMessage.classList.add('active');
 }
 
 function searchPhones(query) {
@@ -235,6 +351,7 @@ function displayDetailedSpecs(detailedSpecs) {
             if (category === 'Network') {
                 th.classList.add('collapsed');
             }
+            
             th.setAttribute('colspan', '2');
             th.textContent = category;
             headerRow.appendChild(th);
@@ -290,17 +407,57 @@ function showError(message) {
     errorMessage.classList.add('active');
 }
 
+function switchTab(tabName) {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(function(btn) {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-tab') === tabName) {
+            btn.classList.add('active');
+        }
+    });
+    
+    tabContents.forEach(function(content) {
+        content.classList.remove('active');
+        if (content.id === tabName) {
+            content.classList.add('active');
+        }
+    });
+    
+    currentTab = tabName;
+    
+    if (tabName === 'phone-search') {
+        clearAll();
+    } else if (tabName === 'imei-checker') {
+        clearImei();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('year').textContent = new Date().getFullYear();
     
     const searchBtn = document.getElementById('search-btn');
-    const searchInput = document.getElementById('phone-search');
+    const searchInput = document.getElementById('phone-search-input');
     const clearBtn = document.getElementById('clear-search');
+    const imeiBtn = document.getElementById('imei-btn');
+    const imeiInput = document.getElementById('imei-input');
+    const clearImeiBtn = document.getElementById('clear-imei');
     const hamburgerMenu = document.getElementById('hamburger-menu');
     const navMenu = document.getElementById('nav-menu');
+    const tabButtons = document.querySelectorAll('.tab-btn');
     
     searchBtn.addEventListener('click', handleSearch);
     clearBtn.addEventListener('click', clearAll);
+    imeiBtn.addEventListener('click', handleImeiCheck);
+    clearImeiBtn.addEventListener('click', clearImei);
+    
+    tabButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            switchTab(tabName);
+        });
+    });
     
     hamburgerMenu.addEventListener('click', function() {
         navMenu.classList.toggle('show');
@@ -320,9 +477,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    imeiInput.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '');
+        if (imeiInput.value.trim()) {
+            clearImeiBtn.style.display = 'flex';
+        } else {
+            clearImeiBtn.style.display = 'none';
+        }
+    });
+    
     searchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             handleSearch();
+        }
+    });
+    
+    imeiInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            handleImeiCheck();
         }
     });
 });
