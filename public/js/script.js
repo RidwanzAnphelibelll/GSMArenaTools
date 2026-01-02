@@ -1,3 +1,5 @@
+const API_BASE_URL = 'https://api-gsmarena-tools.vercel.app/';
+
 function handleSearch() {
     const searchInput = document.getElementById('phone-search');
     const query = searchInput.value.trim();
@@ -38,7 +40,7 @@ function searchPhones(query) {
     specsContainer.style.display = 'none';
     
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', '/search/' + encodeURIComponent(query), true);
+    xhr.open('GET', API_BASE_URL + 'api/search?query=' + encodeURIComponent(query), true);
     
     xhr.onload = function() {
         loader.classList.remove('active');
@@ -123,9 +125,9 @@ function loadPhoneSpecs(model, phoneName, isDirectUrl) {
     specsContainer.style.display = 'none';
     searchResults.classList.remove('active');
     
-    const endpoint = isDirectUrl ? '/specs/' : '/phone/';
+    const endpoint = isDirectUrl ? 'api/specs?url=' : 'api/phone?model=';
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', endpoint + encodeURIComponent(model), true);
+    xhr.open('GET', API_BASE_URL + endpoint + encodeURIComponent(model), true);
     
     xhr.onload = function() {
         loader.classList.remove('active');
