@@ -368,6 +368,33 @@ body {
     font-size: 14px;
     font-weight: bold;
     text-align: left;
+    position: relative;
+    user-select: none;
+}
+
+.spec-table-header.collapsed {
+    cursor: pointer;
+}
+
+.spec-table-header.collapsed::after {
+    content: '\25BC';
+    position: absolute;
+    right: 10px;
+    font-size: 12px;
+    transition: transform 0.3s ease;
+    transform: rotate(0deg);
+}
+
+.spec-table-header.collapsed.expanded::after {
+    transform: rotate(180deg);
+}
+
+.spec-table tbody {
+    transition: all 0.3s ease;
+}
+
+.spec-table.collapsed tbody {
+    display: none;
 }
 
 .spec-row {
@@ -378,6 +405,14 @@ body {
 
 .spec-row:hover {
     background: #f9f9f9;
+}
+
+.spec-row.hidden-row {
+    display: none;
+}
+
+.spec-row.hidden-row.show-row {
+    display: table;
 }
 
 .spec-label {
