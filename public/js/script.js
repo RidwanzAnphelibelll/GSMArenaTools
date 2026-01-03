@@ -113,8 +113,7 @@ function displayImeiResult(data) {
     const specs = [
         { label: 'IMEI', value: data.imei, icon: 'fa-solid fa-sim-card' },
         { label: 'Brand', value: data.brand, icon: 'fa-solid fa-tag' },
-        { label: 'Model', value: data.model, icon: 'fa-solid fa-mobile' },
-        { label: 'Model Name', value: data.modelName, icon: 'fa-solid fa-mobile-screen' }
+        { label: 'Model Name', value: data.modelName, icon: 'fa-solid fa-mobile' }
     ];
     
     specs.forEach(function(spec) {
@@ -429,6 +428,7 @@ function switchTab(tabName) {
     
     if (tabName === 'phone-search') {
         clearAll();
+        
     } else if (tabName === 'imei-checker') {
         clearImei();
     }
