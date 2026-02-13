@@ -56,6 +56,16 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .header p {
@@ -693,6 +703,11 @@ footer {
         font-size: 22px;
     }
 
+    .header-icon {
+        width: 32px;
+        height: 32px;
+    }
+
     .header-nav {
         top: 15px;
         right: 15px;
@@ -795,6 +810,11 @@ footer {
 
     .header h1 {
         font-size: 20px;
+    }
+
+    .header-icon {
+        width: 28px;
+        height: 28px;
     }
 
     .header p {
